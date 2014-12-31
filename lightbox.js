@@ -8,6 +8,7 @@ var appendThumbnails = function(json) {
 	var thumbnail;
 	json.data.forEach(function(datum) {
 		thumbnail = document.createElement('img');
+		thumbnail.classList.add('thumbnail');
 		thumbnail.src = datum.images.thumbnail.url;
 		thumbnail.data = datum;
 		thumbnails.push(thumbnail);
@@ -18,6 +19,7 @@ var appendThumbnails = function(json) {
 document.addEventListener('DOMContentLoaded', function() {
 	container = document.createElement('div');
 	document.body.appendChild(container);
+	container.id = 'container';
 
 	var script = document.createElement('script');
 	script.src = url + '&count=16' + '&callback=' + 'appendThumbnails';
