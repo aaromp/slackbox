@@ -3,6 +3,23 @@ var url = 'https://api.instagram.com/v1/tags/iceland/media/recent?client_id=' + 
 
 var thumbnails = [];
 var container, image;
+var states = {
+	initial: {},
+	final: {}
+};
+
+
+var setState = function(state, container, scale) {
+	state.transform = 'translate(-50%, -50%) scale(' + scale + ')';
+	state.top = (container.getBoundingClientRect().height/2) + container.getBoundingClientRect().top - document.body.getBoundingClientRect().top;
+	state.left = (container.getBoundingClientRect().width/2) + container.getBoundingClientRect().left - document.body.getBoundingClientRect().left;	
+};
+
+var setStyles = function(element, styles) {
+	Object.keys(styles).forEach(function(style) {
+		element.style[style] = styles[style];
+	});
+};
 
 var handleThumbnailClick = function(data) {
 	console.log(data);
@@ -17,16 +34,14 @@ var handleThumbnailClick = function(data) {
 		image.style.opacity = 1; // make visible
 
 		// set initial size and position
+		setState(states.initial, this, data.images.thumbnail.width/data.images.standard_resolution.width);
 		image.style.transition = 'none';
-		image.style.transform = 'translate(-50%, -50%) scale(' + data.images.thumbnail.width / data.images.standard_resolution.width + ')';
-		image.style.top = (this.getBoundingClientRect().height/2) + this.getBoundingClientRect().top - document.body.getBoundingClientRect().top;
-		image.style.left = (this.getBoundingClientRect().width/2) + this.getBoundingClientRect().left - document.body.getBoundingClientRect().left;	
+		setStyles(image, states.initial);
 	
 		// set final size and position
+		setState(states.final, container, 1);
 		image.style.transition = 'all 0.5s ease';
-		image.style.transform = 'translate(-50%, -50%) scale(' + 1 + ')';
-		image.style.top = (container.getBoundingClientRect().height/2) + (container.getBoundingClientRect().top) - document.body.getBoundingClientRect().top;
-		image.style.left = (container.getBoundingClientRect().width/2) + (container.getBoundingClientRect().left) - document.body.getBoundingClientRect().left;
+		setStyles(image, states.final);
 	}.bind(this);
 };
 
@@ -59,7 +74,8 @@ document.addEventListener('DOMContentLoaded', function() {
 	container.appendChild(button);
 	button.style.position = 'absolute';
 	button.addEventListener('click', function(e) {
-		console.log('button?', e);
-		image.src = '';
+		console.log(states, e);
+		// image.src = '';
+		setStyles(image, states.initial);
 	});
 });
