@@ -4,6 +4,10 @@
 	margin: auto;
 }
 
+#image {
+	position: absolute;
+}
+
 .thumbnail {
 	display: inline-block;
 	height: 150px;
