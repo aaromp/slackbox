@@ -1,13 +1,16 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
 var url = 'https://api.instagram.com/v1/tags/slack/media/recent?client_id=' + client_id;
 
+var thumbnails = [];
+
 var appendThumbnails = function(json) {
-	var image;
+	var thumbnail;
 	json.data.forEach(function(datum) {
-		image = document.createElement('img');
-		image.src = datum.images.thumbnail.url;
-		image.data = datum;
-		document.body.appendChild(image);
+		thumbnail = document.createElement('img');
+		thumbnail.src = datum.images.thumbnail.url;
+		thumbnail.data = datum;
+		thumbnails.push(thumbnail);
+		document.body.appendChild(thumbnail);
 	});
 };
 
