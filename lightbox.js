@@ -10,7 +10,9 @@ var appendThumbnails = function(json) {
 		thumbnail = document.createElement('img');
 		thumbnail.classList.add('thumbnail');
 		thumbnail.src = datum.images.thumbnail.url;
-		thumbnail.data = datum;
+		thumbnail.addEventListener('click', function() {
+			console.log(this);
+		}.bind(datum));
 		thumbnails.push(thumbnail);
 		container.appendChild(thumbnail);
 	});
