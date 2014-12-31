@@ -1,5 +1,5 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
-var url = 'https://api.instagram.com/v1/tags/selfie/media/recent?client_id=' + client_id;
+var url = 'https://api.instagram.com/v1/tags/iceland/media/recent?client_id=' + client_id;
 
 var thumbnails = [];
 var container, image;
@@ -53,4 +53,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	var script = document.createElement('script');
 	script.src = url + '&count=16' + '&callback=' + 'appendThumbnails';
 	document.body.appendChild(script);
+
+	// TODO: Use an overlay
+	var button = document.createElement('button');
+	container.appendChild(button);
+	button.style.position = 'absolute';
+	button.addEventListener('click', function(e) {
+		console.log('button?', e);
+		image.src = '';
+	});
 });
