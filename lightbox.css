@@ -11,6 +11,10 @@ body {
 	background-color: white;
 }
 
+#overlays.active {
+	pointer-events: auto;
+}
+
 #overlays {
 	position: absolute;
 	height: inherit;
@@ -20,6 +24,7 @@ body {
 
 #image {
 	position: absolute;
+	pointer-events: none;
 }
 
 .thumbnail {

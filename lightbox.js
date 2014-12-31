@@ -23,6 +23,7 @@ var setStyles = function(element, styles) {
 
 var handleThumbnailClick = function(data) {
 	console.log(data);
+	overlays.classList.add('active');
 	// initialize image
 	image.src = '';
 	image.style.top = '';
@@ -87,6 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	button.style.position = 'absolute';
 	button.addEventListener('click', function(e) {
 		console.log(states, e);
+		overlays.classList.remove('active');
 		
 		setStyles(image, states.initial);
 
