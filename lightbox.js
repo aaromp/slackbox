@@ -1,5 +1,5 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
-var url = 'https://api.instagram.com/v1/tags/slack/media/recent?client_id=' + client_id;
+var url = 'https://api.instagram.com/v1/tags/selfie/media/recent?client_id=' + client_id;
 
 var thumbnails = [];
 var container, image;
