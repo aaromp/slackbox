@@ -75,7 +75,14 @@ document.addEventListener('DOMContentLoaded', function() {
 	button.style.position = 'absolute';
 	button.addEventListener('click', function(e) {
 		console.log(states, e);
-		// image.src = '';
+		
 		setStyles(image, states.initial);
+
+		// TODO: decide if necessary;
+		image.addEventListener('transitionend', function removeImage() {
+			console.log('transitionend');
+			image.src = '';
+			image.removeEventListener('transitionend', removeImage);
+		});
 	});
 });
