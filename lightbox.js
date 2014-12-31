@@ -4,15 +4,17 @@ var url = 'https://api.instagram.com/v1/tags/slack/media/recent?client_id=' + cl
 var thumbnails = [];
 var container;
 
+var handleThumbnailClick = function(datum) {
+	console.log(datum.images.standard_resolution.url);
+};
+
 var appendThumbnails = function(json) {
 	var thumbnail;
 	json.data.forEach(function(datum) {
 		thumbnail = document.createElement('img');
 		thumbnail.classList.add('thumbnail');
 		thumbnail.src = datum.images.thumbnail.url;
-		thumbnail.addEventListener('click', function() {
-			console.log(this);
-		}.bind(datum));
+		thumbnail.addEventListener('click', handleThumbnailClick.bind(this, datum));
 		thumbnails.push(thumbnail);
 		container.appendChild(thumbnail);
 	});
