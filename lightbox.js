@@ -4,18 +4,27 @@ var url = 'https://api.instagram.com/v1/tags/selfie/media/recent?client_id=' + c
 var thumbnails = [];
 var container, image;
 
-var handleThumbnailClick = function(datum) {
-	// console.log(datum.images.standard_resolution.url);
-	image.src = datum.images.standard_resolution.url;
+var handleThumbnailClick = function(data) {
+	// set image
+	image.src = '';
+	image.src = data.images.standard_resolution.url;
+
+	// set image width
+	image.style.width = this.getBoundingClientRect().width;
+	image.style.height = this.getBoundingClientRect().height;
+
+	// set initial position
+	image.style.top = this.getBoundingClientRect().top - document.body.getBoundingClientRect().top;
+	image.style.left = this.getBoundingClientRect().left - document.body.getBoundingClientRect().left;
 };
 
 var appendThumbnails = function(json) {
 	var thumbnail;
-	json.data.forEach(function(datum) {
+	json.data.forEach(function(data) {
 		thumbnail = document.createElement('img');
 		thumbnail.classList.add('thumbnail');
-		thumbnail.src = datum.images.thumbnail.url;
-		thumbnail.addEventListener('click', handleThumbnailClick.bind(this, datum));
+		thumbnail.src = data.images.thumbnail.url;
+		thumbnail.addEventListener('click', handleThumbnailClick.bind(thumbnail, data));
 		thumbnails.push(thumbnail);
 		container.appendChild(thumbnail);
 	});

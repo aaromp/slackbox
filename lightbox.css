@@ -1,11 +1,19 @@
+body {
+	background-color: grey;
+	margin: 0;
+}
+
 #container {
 	height: 640px;
 	width: 640px;
 	margin: auto;
+	padding: 10px;
+	background-color: white;
 }
 
 #image {
 	position: absolute;
+	pointer-events: none;
 }
 
 .thumbnail {
