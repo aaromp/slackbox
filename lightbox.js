@@ -2,7 +2,7 @@ var client_id = '38615c1e89344d13b07e194a36915fc8';
 var url = 'https://api.instagram.com/v1/tags/iceland/media/recent?client_id=' + client_id;
 
 var thumbnails = [];
-var container, image;
+var container, overlays, image;
 var states = {
 	initial: {},
 	final: {}
@@ -57,13 +57,25 @@ var appendThumbnails = function(json) {
 	});
 };
 
+var createOverlay = function(position) {
+	var overlay = document.createElement('div');
+	overlay.id = position;
+	overlays.appendChild(overlay);
+};
+
 document.addEventListener('DOMContentLoaded', function() {
 	container = document.createElement('div');
+	overlays = document.createElement('div');
 	image = document.createElement('img');
+	overlays.id = 'overlays';
 	document.body.appendChild(container);
+	container.appendChild(overlays);
 	container.appendChild(image);
 	container.id = 'container';
 	image.id = 'image';
+
+	createOverlay('left');
+	createOverlay('right');
 
 	var script = document.createElement('script');
 	script.src = url + '&count=16' + '&callback=' + 'appendThumbnails';
@@ -78,11 +90,11 @@ document.addEventListener('DOMContentLoaded', function() {
 		
 		setStyles(image, states.initial);
 
-		// TODO: decide if necessary;
-		image.addEventListener('transitionend', function removeImage() {
-			console.log('transitionend');
-			image.src = '';
-			image.removeEventListener('transitionend', removeImage);
-		});
+		// // TODO: decide if necessary;
+		// image.addEventListener('transitionend', function removeImage() {
+		// 	console.log('transitionend');
+		// 	image.src = '';
+		// 	image.removeEventListener('transitionend', removeImage);
+		// });
 	});
 });

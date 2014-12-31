@@ -11,9 +11,15 @@ body {
 	background-color: white;
 }
 
+#overlays {
+	position: absolute;
+	height: inherit;
+	width: inherit;
+	pointer-events: none;
+}
+
 #image {
 	position: absolute;
-	pointer-events: none;
 }
 
 .thumbnail {
@@ -22,3 +28,19 @@ body {
 	width: 150px;
 	margin: 5px;
 }
+
+#left:hover {
+	cursor: w-resize;
+}
+
+#right:hover {
+	cursor: e-resize;
+}
+
+#left, #right {
+	display: inline-block;
+	height: 640px;
+	width: 320px;
+};
+
+
