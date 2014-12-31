@@ -5,17 +5,24 @@ var thumbnails = [];
 var container, image;
 
 var handleThumbnailClick = function(data) {
-	// set image
+	console.log(data);
+	// initialize image
 	image.src = '';
+	image.style.top = '';
+	image.style.left = '';
 	image.src = data.images.standard_resolution.url;
 
-	// set image width
-	image.style.width = this.getBoundingClientRect().width;
-	image.style.height = this.getBoundingClientRect().height;
+	// set initial size and position
+	image.style.transition = 'none';
+	image.style.transform = 'translate(-50%, -50%) scale(' + data.images.thumbnail.width / data.images.standard_resolution.width + ')';
+	image.style.top = (this.getBoundingClientRect().height/2) + this.getBoundingClientRect().top - document.body.getBoundingClientRect().top;
+	image.style.left = (this.getBoundingClientRect().width/2) + this.getBoundingClientRect().left - document.body.getBoundingClientRect().left;	
 
-	// set initial position
-	image.style.top = this.getBoundingClientRect().top - document.body.getBoundingClientRect().top;
-	image.style.left = this.getBoundingClientRect().left - document.body.getBoundingClientRect().left;
+	// set final size and position
+	image.style.transition = 'all 0.5s ease';
+	image.style.transform = 'translate(-50%, -50%) scale(' + 1 + ')';
+	image.style.top = (container.getBoundingClientRect().height/2) + (container.getBoundingClientRect().top) - document.body.getBoundingClientRect().top;
+	image.style.left = (container.getBoundingClientRect().width/2) + (container.getBoundingClientRect().left) - document.body.getBoundingClientRect().left;
 };
 
 var appendThumbnails = function(json) {
