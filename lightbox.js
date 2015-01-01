@@ -1,7 +1,7 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
-var root = 'https://api.instagram.com/v1/tags/selfie/media/recent?client_id=' + client_id;
+var root = 'https://api.instagram.com/v1/tags/iceland/media/recent?client_id=' + client_id;
 
-var Lightbox = function() {
+var Lightbox = function(options) {
 	this.data = [];
 	this.pagination = {};
 	this.thumbnails = [];
@@ -12,22 +12,34 @@ var Lightbox = function() {
 	};
 	this.updated = new Event('updated');
 
-	createElements.call(this);	
+	// set options
+	this.options = Lightbox.DEFAULT_OPTIONS;
+	if (options) setOptions.call(this.options, options);
+
+	createElements.call(this);
+	sizeElements.call(this);
 	addIDs.call(this);
-	appendElements.call(this);	
+	appendElements.call(this);
 	addEventListeners.call(this);
 
 	// initialize with data
 	window.handleData = handleData.bind(this); // must bind global callback to correct context
-	getData.call(this, getURL(24, 'handleData'));
+	getData.call(this, getURL(this.options.columns * this.options.columns, 'handleData'));
 
 	return this.container;
 };
 
-Lightbox.options = {
-	rows: 5,
-	columns: 5,
-	size: 750
+Lightbox.DEFAULT_OPTIONS = {
+	columns: 4,
+	humbnailSize: 150,
+	detailSize: 1000
+};
+
+var setOptions = function(options) {
+	console.log('setting options');
+	Object.keys(options).forEach(function(option) {
+		this[option] = options[option];
+	}.bind(this));
 };
 
 var addEventListeners = function() {
@@ -74,6 +86,19 @@ var appendElements = function() {
 	this.container.appendChild(this.background);
 	this.container.appendChild(this.button);
 	this.container.appendChild(this.image);
+};
+
+var sizeElements = function() {
+	this.container.style.height = this.options.detailSize;
+	this.container.style.width = this.options.detailSize;
+	this.overlays.style.height = this.options.detailSize;
+	this.overlays.style.width = this.options.detailSize;
+	this.left.style.height = this.options.detailSize;
+	this.left.style.width = this.options.detailSize/2;
+	this.right.style.height = this.options.detailSize;
+	this.right.style.width = this.options.detailSize/2;
+	this.image.style.height = this.options.detailSize;
+	this.image.style.width = this.options.detailSize;
 };
 
 var createElements = function() {
@@ -136,9 +161,13 @@ var handleThumbnailClick = function(thumbnail, data, position) {
 
 var addThumbnails = function(thumbnails, number) {
 	var thumbnail;
+	var size = this.options.detailSize / this.options.columns;
+	console.log(size);
 	return Array.apply(null, Array(number)).reduce(function(thumbnails) {
 		thumbnail = document.createElement('img');
 		thumbnail.classList.add('thumbnail');
+		thumbnail.style.height = size;
+		thumbnail.style.width = size;
 		this.container.insertBefore(thumbnail, this.button);
 		this.thumbnails.push(thumbnail);
 		return this.thumbnails;

@@ -1,13 +1,19 @@
 body {
-	background-color: grey;
 	margin: 0;
+	background-color: grey;
 }
 
 #container {
-	height: 750px;
-	width: 750px;
 	overflow-y: auto;
-	background-color: white;
+	background-color: black;
+
+	/* center */
+/*	position: absolute;
+	margin: auto;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;*/
 }
 
 #background.active {
@@ -19,43 +25,46 @@ body {
 	position: absolute;
 	height: inherit;
 	width: inherit;
-	pointer-events: none;
 	opacity: 0;
 	background-color: black;
 	transition: opacity 0.5s ease;
+	pointer-events: none;
 }
 
 #overlays {
+	/* center */
 	position: absolute;
-	height: 640px;
-	width: 640px;
 	margin: auto;
 	top: 0;
 	left: 0;
 	bottom: 0;
 	right: 0;
-	/*pointer-events: none;*/
 }
 
 #image {
-	opacity: 0;
 	position: absolute;
 	pointer-events: none;
 }
 
 #button {
-	display: inline-block;
-	/*position: absolute;*/
-	height: 150px;
-	width: 150px;
-	background-color: pink;
+	/*display: inline-block;*/
+	/*height: 150px;*/
+	/*width: 150px;*/
+}
+
+#button:hover {
+	cursor: s-resize;
 }
 
 .thumbnail {
 	display: inline-block;
-	height: 150px;
-	width: 150px;
+	/*height: 150px;*/
+	/*width: 150px;*/
 	/*margin: 5px;*/
+}
+
+.thumbnail:hover {
+	cursor: zoom-in;
 }
 
 #left:hover {
@@ -68,8 +77,6 @@ body {
 
 #left, #right {
 	display: inline-block;
-	height: 640px;
-	width: 320px;
 };
 
 
