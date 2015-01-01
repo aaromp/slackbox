@@ -1,8 +1,8 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
 var root = 'https://api.instagram.com/v1/tags/nyc/media/recent?client_id=' + client_id;
 
-var data;
-var thumbnails;
+var data = [];
+var thumbnails = [];
 var script, container, overlays, background, image, button;
 var index = 0;
 var updated = new Event('updated');
@@ -54,27 +54,26 @@ var handleThumbnailClick = function(data, i) {
 	}.bind(this);
 };
 
-var createThumbnails = function(number) {
+var addThumbnails = function(thumbnails, number) {
 	var thumbnail;
-	return Array.apply(null, Array(number)).map(function() {
+	return Array.apply(null, Array(number)).reduce(function(thumbnails) {
 		thumbnail = document.createElement('img');
 		thumbnail.classList.add('thumbnail');
 		container.insertBefore(thumbnail, button);
-		return thumbnail;
-	});
+		thumbnails.push(thumbnail);
+		return thumbnails;
+	}, thumbnails);
 };
 
-var initialize = function(json) {
-	data = json.data;
-	pagination = json.pagination;
-	setThumbnails();
-};
 
-var setThumbnails = function() {
+
+var setThumbnails = function(thumbnails, data, offset) {
 	console.log(thumbnails.length, data.length);
+	var position;
 	data.forEach(function(data, index) {
-		thumbnails[index].src = data.images.thumbnail.url;
-		thumbnails[index].addEventListener('click', handleThumbnailClick.bind(thumbnails[index], data, index));
+		position = offset + index;
+		thumbnails[position].src = data.images.thumbnail.url;
+		thumbnails[position].addEventListener('click', handleThumbnailClick.bind(thumbnails[position], data, position));
 	});
 };
 
@@ -107,6 +106,7 @@ var handleOverlayClick = function(event) {
 	else if (event.target.id === 'left') index--;
 
 	index = (data.length + index) % data.length;
+	console.log(data.length, index);
 	image.dispatchEvent(updated);
 };
 
@@ -114,14 +114,14 @@ var paginateForward = function(json) {
 	console.log('forward!');
 	pagination = json.pagination;
 	data = json.data.concat(Array.apply(null, Array(24))).slice(0, 24);
-	setThumbnails();
+	setThumbnails(data);
 };
 
 var paginateBackward = function(json) {
 	console.log('backward!');
 	pagination = json.pagination;
 	data = json.data.concat(data).slice(0, 24);
-	setThumbnails();
+	setThumbnails(data);
 };
 
 var getData = function(url) {
@@ -131,18 +131,26 @@ var getData = function(url) {
 	document.body.appendChild(script);
 };
 
-var getURL = function(callback, param, value) {
-	var url = root + '&count=24' + '&callback=' + callback;
+var getURL = function(count, callback, param, value) {
+	var url = [root, '&count=', count, '&callback=', callback].join('');
 	if (param) url += ['&', param, '=', value].join('');
 	return url;
 };
 
-var test = function(json) {
-	console.log('these are new', json);
-	thumbnails = createThumbnails(json.data.length);
-	console.log(thumbnails.length);
+var initialize = function(json) {
+	var offset = thumbnails.length;
+	addThumbnails(thumbnails, 24);
 	data = json.data;
-	setThumbnails();
+	pagination = json.pagination;
+	setThumbnails(thumbnails, data, offset);
+};
+
+var handleData = function(json) {
+	var offset = thumbnails.length;
+	addThumbnails(thumbnails, json.data.length);
+	setThumbnails(thumbnails, json.data, offset);
+	data = data.concat(json.data);
+	pagination = json.pagination;
 };
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -164,8 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	image.id = 'image';
 	background.id = 'background';
 
-	thumbnails = createThumbnails(24);
-	getData(getURL('initialize'));
+	getData(getURL(24, 'handleData'));
 
 	createOverlay('left').addEventListener('click', handleOverlayClick);
 	createOverlay('right').addEventListener('click', handleOverlayClick);
@@ -178,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	button.addEventListener('click', function(event) {
 		console.log('butotn was clicked');
-		var url = getURL('test', 'max_tag_id', pagination.next_max_tag_id);
+		var url = getURL(25, 'handleData', 'max_tag_id', pagination.next_max_tag_id);
 		getData(url);
 	});
 
