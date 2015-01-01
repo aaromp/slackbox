@@ -1,9 +1,10 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
-var url = 'https://api.instagram.com/v1/tags/iceland/media/recent?client_id=' + client_id;
+var root = 'https://api.instagram.com/v1/tags/nyc/media/recent?client_id=' + client_id;
 
-var data;
+var data = [];
+var urls = [];
 var thumbnails;
-var container, overlays, image;
+var script, container, overlays, image;
 var index = 0;
 var updated = new Event('updated');
 var states = {
@@ -11,7 +12,8 @@ var states = {
 	final: {}
 };
 
-// use min_tag_id and max_tag_id instead
+var current;
+
 var pagination;
 
 var setState = function(state, container, scale) {
@@ -55,7 +57,7 @@ var handleThumbnailClick = function(data, i) {
 
 var createThumbnails = function() {
 	var thumbnail;
-	thumbnails = Array.apply(null, Array(16)).map(function() {
+	thumbnails = Array.apply(null, Array(25)).map(function() {
 		thumbnail = document.createElement('img');
 		thumbnail.index = index;
 		thumbnail.classList.add('thumbnail');
@@ -64,21 +66,18 @@ var createThumbnails = function() {
 	});
 };
 
-var appendThumbnails = function(json) {
-	console.log('json.length', json.data.length, 'index', index, 'json.data.length < 16', json.data.length < 16);
-	if (json.data.length < 16) index = json.data.length + 1;
-	data = json.data.length < 16 ? json.data.concat(data).slice(0, 16) : json.data;
-
-	index = (index + json.data.length) % 16;
-	console.log(index);
+var initialize = function(json) {
+	console.log(json.data.length);
+	data = json.data;
 	pagination = json.pagination;
-	json.data.forEach(function(data, index) {
-		// console.log(index, thumbnails[index].src, 'b');
+	setThumbnails();
+};
+
+var setThumbnails = function() {
+	data.forEach(function(data, index) {
 		thumbnails[index].src = data.images.thumbnail.url;
-		// console.log(index, thumbnails[index].src, 'a');
 		thumbnails[index].addEventListener('click', handleThumbnailClick.bind(thumbnails[index], data, index));
 	});
-	image.dispatchEvent(updated);
 };
 
 var createOverlay = function(position) {
@@ -89,44 +88,76 @@ var createOverlay = function(position) {
 };
 
 var handleOverlayClick = function(event) {
-	if (event.target.id === 'right') index++;
-	else if (event.target.id === 'left') index--;
-
-	if (index >= data.length) {
-		console.log('index greater than data.length-1');
-		// update data
-		getData('max_tag_id');
-		// update thumbnails
-		// update index
-		// index = index % data.length;
-		// update image
-	} else if (index < 0) {
-		console.log('index less than 0');
-		getData('min_tag_id');
-
-		// index = (data.length + index);
-		// remove backward pointer
-		// pop data off of the stack of data
-		// update thumbnails
-		// update image
-	} else {
-		image.dispatchEvent(updated);
+	var url;
+	console.log(current);
+	if (event.target.id === 'right') {
+		// url = pagination.next_url;
+		// url = getURL('paginateForward', 'max_tag_id', pagination.next_max_tag_id);
+		url = getURL('paginateForward', 'min_tag_id', pagination.min_tag_id);
+		urls.push(url);
+		getData(url);
+	} else if (event.target.id === 'left')  {
+		url = urls.pop(); // get current
+		if (url === current) url = urls.pop(); // if we're already on that page, go to previous
+		if (url === undefined) url = getURL('paginateBackward', 'min_tag_id', pagination.min_tag_id);
+		getData(url);
 	}
-	console.log(index);
+	current = url;
+	console.log(urls.length);
+
+	// if (index >= data.length) {
+	// 	console.log('index greater than data.length-1');
+	// 	// update data
+	// 	getData('max_tag_id');
+	// 	// update thumbnails
+	// 	// update index
+	// 	// index = index % data.length;
+	// 	// update image
+	// } else if (index < 0) {
+	// 	console.log('index less than 0');
+	// 	getData('min_tag_id');
+
+	// 	// index = (data.length + index);
+	// 	// remove backward pointer
+	// 	// pop data off of the stack of data
+	// 	// update thumbnails
+	// 	// update image
+	// } else {
+	// 	image.dispatchEvent(updated);
+	// }
+	// console.log(index);
 };
 
-var getData = function(param) {
-	var script = document.createElement('script');
-	var source = url + '&count=16' + '&callback=' + 'appendThumbnails';
-	console.log(param, source, pagination);
-	var prefix = param === 'max_tag_id' ? 'next_' : '';
-	if (param) console.log('test', pagination[prefix + param]);
-	if (param) source += ['&', param, '=', pagination[prefix + param]].join('');
-	script.src = source;
+var paginateForward = function(json) {
+	console.log('forward!');
+	pagination = json.pagination;
+	data = json.data.concat(Array.apply(null, Array(25))).slice(0, 25);
+	setThumbnails();
+};
+
+var paginateBackward = function(json) {
+	console.log('backward!');
+	pagination = json.pagination;
+	data = json.data.concat(data).slice(0, 25);
+	setThumbnails();
+};
+
+var getData = function(url) {
+	document.body.removeChild(script);
+	script = document.createElement('script');
+	script.src = url;
 	document.body.appendChild(script);
 };
 
+var getURL = function(callback, param, value) {
+	var url = root + '&count=25' + '&callback=' + callback;
+	if (param) url += ['&', param, '=', value].join('');
+	return url;
+};
+
 document.addEventListener('DOMContentLoaded', function() {
+	script = document.createElement('script');
+	document.body.appendChild(script);
 	container = document.createElement('div');
 	overlays = document.createElement('div');
 	image = document.createElement('img');
@@ -142,13 +173,13 @@ document.addEventListener('DOMContentLoaded', function() {
 	container.appendChild(button);
 
 	createThumbnails();
-	getData();
+	getData(getURL('initialize'));
 
 	createOverlay('left').addEventListener('click', handleOverlayClick);
 	createOverlay('right').addEventListener('click', handleOverlayClick);
 
 	image.addEventListener('updated', function() {
-		console.log('image heard a change!', data, index, data[index]);
+		// console.log('image heard a change!', data, index, data[index]);
 		image.style.transition = 'none'; // turn off transition
 		setState(states.initial, thumbnails[index], data[index].images.thumbnail.width/data[index].images.standard_resolution.width);
 		image.src = data[index].images.standard_resolution.url;
