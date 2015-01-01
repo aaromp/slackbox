@@ -32,7 +32,7 @@ var Lightbox = function(options) {
 Lightbox.DEFAULT_OPTIONS = {
 	columns: 4,
 	thumbnailSize: 150,
-	detailSize: 1000
+	detailSize: 640
 };
 
 var setOptions = function(options) {
@@ -68,7 +68,7 @@ var addEventListeners = function() {
 	}.bind(this));
 
 	this.button.addEventListener('click', function(event) {
-		var url = getURL(25, 'handleData', 'max_tag_id', this.pagination.next_max_tag_id);
+		var url = getURL(this.options.columns * this.options.columns, 'handleData', 'max_tag_id', this.pagination.next_max_tag_id);
 		getData.call(this, url);
 	}.bind(this));
 };
@@ -221,6 +221,6 @@ var handleData = function(json) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-	var lightbox = new Lightbox();
+	var lightbox = new Lightbox({columns: 3});
 	document.body.appendChild(lightbox);
 });
