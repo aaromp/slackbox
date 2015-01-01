@@ -1,5 +1,5 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
-var root = 'https://api.instagram.com/v1/tags/nyc/media/recent?client_id=' + client_id;
+var root = 'https://api.instagram.com/v1/tags/selfie/media/recent?client_id=' + client_id;
 
 var Lightbox = function() {
 	this.data = [];
@@ -15,10 +15,6 @@ var Lightbox = function() {
 	createElements.call(this);	
 	addIDs.call(this);
 	appendElements.call(this);	
-
-	createOverlay.call(this, 'left').addEventListener('click', handleOverlayClick.bind(this));
-	createOverlay.call(this, 'right').addEventListener('click', handleOverlayClick.bind(this));
-
 	addEventListeners.call(this);
 
 	// initialize with data
@@ -35,20 +31,12 @@ Lightbox.options = {
 };
 
 var addEventListeners = function() {
-	this.image.addEventListener('updated', function() {
-		this.image.style.transition = 'none'; // turn off transition
-		setState(this.states.initial, this.thumbnails[this.index], this.data[this.index].images.thumbnail.width/this.data[this.index].images.standard_resolution.width);
-		this.image.src = this.data[this.index].images.standard_resolution.url;
-	}.bind(this));
-
-	this.button.addEventListener('click', function(event) {
-		var url = getURL(25, 'handleData', 'max_tag_id', this.pagination.next_max_tag_id);
-		getData.call(this, url);
-	}.bind(this));
-
 	this.overlays.addEventListener('click', function(event) {
 		event.stopPropagation();
 	});
+
+	this.left.addEventListener('click', handleOverlayClick.bind(this));
+	this.right.addEventListener('click', handleOverlayClick.bind(this));
 
 	this.background.addEventListener('click', function(event) {
 		this.image.style.transition = 'all 0.5s ease'; // turn transition back on
@@ -60,6 +48,17 @@ var addEventListeners = function() {
 		removeImage = removeImage.bind(this); // must bind remove image to correct context
 		this.image.addEventListener('transitionend', removeImage);
 	}.bind(this));
+
+	this.image.addEventListener('updated', function() {
+		this.image.style.transition = 'none'; // turn off transition
+		setState(this.states.initial, this.thumbnails[this.index], this.data[this.index].images.thumbnail.width/this.data[this.index].images.standard_resolution.width);
+		this.image.src = this.data[this.index].images.standard_resolution.url;
+	}.bind(this));
+
+	this.button.addEventListener('click', function(event) {
+		var url = getURL(25, 'handleData', 'max_tag_id', this.pagination.next_max_tag_id);
+		getData.call(this, url);
+	}.bind(this));
 };
 
 var removeImage = function() {
@@ -69,6 +68,8 @@ var removeImage = function() {
 
 var appendElements = function() {
 	document.body.appendChild(this.script);
+	this.overlays.appendChild(this.left);
+	this.overlays.appendChild(this.right);
 	this.background.appendChild(this.overlays);
 	this.container.appendChild(this.background);
 	this.container.appendChild(this.button);
@@ -79,6 +80,8 @@ var createElements = function() {
 	this.script = document.createElement('script');
 	this.container = document.createElement('div');
 	this.overlays = document.createElement('div');
+	this.left = document.createElement('div');
+	this.right = document.createElement('div');
 	this.background = document.createElement('div');
 	this.image = document.createElement('img');
 	this.button = document.createElement('div');
@@ -87,6 +90,8 @@ var createElements = function() {
 var addIDs = function() {
 	this.container.id = 'container';
 	this.overlays.id = 'overlays';
+	this.left.id = 'left';
+	this.right.id = 'right';
 	this.background.id = 'background';
 	this.image.id = 'image';
 	this.button.id = 'button';
