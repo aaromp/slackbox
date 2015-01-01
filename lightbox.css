@@ -1,6 +1,6 @@
 body {
 	margin: 0;
-	background-color: grey;
+	background-color: white;
 }
 
 #lightbox {
@@ -11,9 +11,15 @@ body {
 	left: 0;
 	bottom: 0;
 	right: 0;
+
+	/* instagram styles */
+/*	box-shadow: 0 1px 16px rgba(0, 0, 0, 0.1);
+	border: 1px solid silver;
+	border-radius: 3px;*/
 }
 
 #container {
+	/*position: relative;*/
 	overflow-y: auto;
 	background-color: black;
 }
@@ -48,11 +54,51 @@ body {
 	pointer-events: none;
 }
 
-#button {
+#bar {
+	position: absolute;
+	font-family: proxima-nova, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-weight: 600;
+	font-size: 2em;
+	/*letter-spacing: 1px;*/
+	/*text-transform: uppercase;*/
+	color: #FFFFFF;
+
+	text-align: center;
+	line-height: 0px;
+	overflow: hidden;
+
 	display: inline-block;
 	height: 150px;
 	width: inherit;
-	background-color: pink;
+	background-color: rgb(39, 39, 39);
+	transition: all 0.25s ease;
+}
+
+#bar:before {
+	content: "close";
+}
+
+#button {
+	font-family: proxima-nova, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-weight: 600;
+	font-size: 2em;
+	/*letter-spacing: 1px;*/
+	/*text-transform: uppercase;*/
+	color: #FFFFFF;
+
+	text-align: center;
+	line-height: 0px;
+	overflow: hidden;
+
+	display: inline-block;
+	height: 150px;
+	width: inherit;
+	background-color: rgb(39, 39, 39);
+	transition: all 0.25s ease;
+}
+
+#button:before {
+	content: "get more";
 }
 
 #button:hover {

@@ -11,6 +11,7 @@ var Lightbox = function(options) {
 		final: {}
 	};
 	this.updated = new Event('updated');
+	this.expandable = true;
 
 	// set options
 	this.options = Lightbox.DEFAULT_OPTIONS;
@@ -26,13 +27,38 @@ var Lightbox = function(options) {
 	window.handleData = handleData.bind(this); // must bind global callback to correct context
 	getData.call(this, getURL(this.options.columns * this.options.columns, 'handleData'));
 
+	// this.button.innerHTML = 'hi';
+
 	return this.element;
 };
 
 Lightbox.DEFAULT_OPTIONS = {
 	columns: 4,
-	thumbnailSize: 150,
 	detailSize: 640
+};
+
+Lightbox.prototype.showFooter = function() {
+	this.button.style.height = this.options.detailSize/this.options.columns/2;
+	this.button.style.lineHeight = this.options.detailSize/this.options.columns/2 + 'px';
+	this.expandable = !this.expandable;
+};
+
+Lightbox.prototype.hideFooter = function() {
+	this.button.style.height = 0;
+	this.button.style.lineHeight = 0 + 'px';
+	this.expandable = !this.expandable;
+};
+
+Lightbox.prototype.showHeader = function() {
+	this.bar.style.top = -this.options.detailSize/this.options.columns/2;
+	this.bar.style.height = this.options.detailSize/this.options.columns/2;
+	this.bar.style.lineHeight = this.options.detailSize/this.options.columns/2 + 'px';
+};
+
+Lightbox.prototype.hideHeader = function() {
+	this.bar.style.top = 0;
+	this.bar.style.height = 0;
+	this.bar.style.lineHeight = 0 + 'px';
 };
 
 var setOptions = function(options) {
@@ -50,7 +76,15 @@ var addEventListeners = function() {
 	this.left.addEventListener('click', handleOverlayClick.bind(this, -1));
 	this.right.addEventListener('click', handleOverlayClick.bind(this, 1));
 
-	this.background.addEventListener('click', function(event) {
+	this.image.addEventListener('updated', function() {
+		this.image.style.transition = 'none'; // turn off transition
+		setState.call(this, this.states.initial, this.thumbnails[this.index], this.data[this.index].images.thumbnail.width/this.data[this.index].images.standard_resolution.width);
+		this.image.src = this.data[this.index].images.standard_resolution.url;
+	}.bind(this));
+
+	this.bar.addEventListener('click', function(event) {
+		this.hideHeader();
+		if (this.expandable) this.showFooter();
 		this.image.style.transition = 'all 0.5s ease'; // turn transition back on
 		this.background.classList.remove('active');
 		
@@ -61,16 +95,22 @@ var addEventListeners = function() {
 		this.image.addEventListener('transitionend', removeImage);
 	}.bind(this));
 
-	this.image.addEventListener('updated', function() {
-		this.image.style.transition = 'none'; // turn off transition
-		setState.call(this, this.states.initial, this.thumbnails[this.index], this.data[this.index].images.thumbnail.width/this.data[this.index].images.standard_resolution.width);
-		this.image.src = this.data[this.index].images.standard_resolution.url;
-	}.bind(this));
-
 	this.button.addEventListener('click', function(event) {
+		this.hideFooter();
 		var url = getURL(this.options.columns * this.options.columns, 'handleData', 'max_tag_id', this.pagination.next_max_tag_id);
 		getData.call(this, url);
 	}.bind(this));
+
+	// display more button when scrolled to the bottom
+	this.container.onscroll = function(event) {
+		var rows = this.thumbnails.length / this.options.columns;
+		var thumbnailSize = this.options.detailSize / this.options.columns;
+		if (this.container.scrollTop >= (rows * thumbnailSize) - this.options.detailSize) {
+			this.showFooter();
+		} else {
+			this.hideFooter();
+		}
+	}.bind(this);
 };
 
 var removeImage = function() {
@@ -85,6 +125,7 @@ var appendElements = function() {
 	this.background.appendChild(this.overlays);
 	this.container.appendChild(this.background);
 	this.container.appendChild(this.image);
+	this.element.appendChild(this.bar);
 	this.element.appendChild(this.container);
 	this.element.appendChild(this.button);
 };
@@ -94,6 +135,7 @@ var sizeElements = function() {
 	this.element.style.width = this.options.detailSize;
 	this.container.style.height = this.options.detailSize;
 	this.container.style.width = this.options.detailSize;
+	this.container.style.top = this.options.detailSize/this.options.columns/2;
 	this.overlays.style.height = this.options.detailSize;
 	this.overlays.style.width = this.options.detailSize;
 	this.left.style.height = this.options.detailSize;
@@ -102,6 +144,8 @@ var sizeElements = function() {
 	this.right.style.width = this.options.detailSize/2;
 	this.image.style.height = this.options.detailSize;
 	this.image.style.width = this.options.detailSize;
+	this.hideHeader();
+	this.showFooter();
 };
 
 var createElements = function() {
@@ -113,6 +157,7 @@ var createElements = function() {
 	this.right = document.createElement('div');
 	this.background = document.createElement('div');
 	this.image = document.createElement('img');
+	this.bar = document.createElement('div');
 	this.button = document.createElement('div');
 };
 
@@ -124,6 +169,7 @@ var addIDs = function() {
 	this.right.id = 'right';
 	this.background.id = 'background';
 	this.image.id = 'image';
+	this.bar.id = 'bar';
 	this.button.id = 'button';
 };
 
@@ -146,12 +192,14 @@ var handleThumbnailClick = function(thumbnail, data, position) {
 	// initialize image
 	this.image.style.opacity = 0;
 	this.image.src = data.images.standard_resolution.url;
+	this.showHeader();
+	this.hideFooter();
 
 	this.image.onload = function() {
 		this.image.style.opacity = 1; // make visible
 
 		// set initial size and position
-		setState.call(this, this.states.initial, thumbnail, this.options.thumbnailSize/this.options.detailSize);
+		setState.call(this, this.states.initial, thumbnail, 1/this.options.columns);
 		this.image.style.transition = 'none';
 		setStyles(this.image, this.states.initial);
 	
@@ -221,6 +269,6 @@ var handleData = function(json) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-	var lightbox = new Lightbox({columns: 3});
+	var lightbox = new Lightbox();
 	document.body.appendChild(lightbox);
 });
