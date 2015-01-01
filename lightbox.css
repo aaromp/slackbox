@@ -1,13 +1,13 @@
 body {
 	background-color: grey;
-	margin: 0;
+	/*margin: 0;*/
 }
 
 #container {
 	height: 750px;
-	width: 750;
+	width: 750px;
 	margin: auto;
-	/*padding: 10px;*/
+	overflow-y: auto;
 	background-color: white;
 }
 
@@ -46,7 +46,7 @@ body {
 
 #button {
 	display: inline-block;
-	position: absolute;
+	/*position: absolute;*/
 	height: 150px;
 	width: 150px;
 	background-color: pink;

@@ -58,9 +58,7 @@ var createThumbnails = function(number) {
 	var thumbnail;
 	return Array.apply(null, Array(number)).map(function() {
 		thumbnail = document.createElement('img');
-		thumbnail.index = index;
 		thumbnail.classList.add('thumbnail');
-		// container.appendChild(thumbnail);
 		container.insertBefore(thumbnail, button);
 		return thumbnail;
 	});
@@ -73,6 +71,7 @@ var initialize = function(json) {
 };
 
 var setThumbnails = function() {
+	console.log(thumbnails.length, data.length);
 	data.forEach(function(data, index) {
 		thumbnails[index].src = data.images.thumbnail.url;
 		thumbnails[index].addEventListener('click', handleThumbnailClick.bind(thumbnails[index], data, index));
@@ -138,6 +137,14 @@ var getURL = function(callback, param, value) {
 	return url;
 };
 
+var test = function(json) {
+	console.log('these are new', json);
+	thumbnails = createThumbnails(json.data.length);
+	console.log(thumbnails.length);
+	data = json.data;
+	setThumbnails();
+};
+
 document.addEventListener('DOMContentLoaded', function() {
 	script = document.createElement('script');
 	document.body.appendChild(script);
@@ -167,6 +174,12 @@ document.addEventListener('DOMContentLoaded', function() {
 		image.style.transition = 'none'; // turn off transition
 		setState(states.initial, thumbnails[index], data[index].images.thumbnail.width/data[index].images.standard_resolution.width);
 		image.src = data[index].images.standard_resolution.url;
+	});
+
+	button.addEventListener('click', function(event) {
+		console.log('butotn was clicked');
+		var url = getURL('test', 'max_tag_id', pagination.next_max_tag_id);
+		getData(url);
 	});
 
 	overlays.addEventListener('click', function(event) {
