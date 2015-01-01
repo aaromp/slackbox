@@ -26,12 +26,12 @@ var Lightbox = function(options) {
 	window.handleData = handleData.bind(this); // must bind global callback to correct context
 	getData.call(this, getURL(this.options.columns * this.options.columns, 'handleData'));
 
-	return this.container;
+	return this.element;
 };
 
 Lightbox.DEFAULT_OPTIONS = {
 	columns: 4,
-	humbnailSize: 150,
+	thumbnailSize: 150,
 	detailSize: 1000
 };
 
@@ -63,7 +63,7 @@ var addEventListeners = function() {
 
 	this.image.addEventListener('updated', function() {
 		this.image.style.transition = 'none'; // turn off transition
-		setState(this.states.initial, this.thumbnails[this.index], this.data[this.index].images.thumbnail.width/this.data[this.index].images.standard_resolution.width);
+		setState.call(this, this.states.initial, this.thumbnails[this.index], this.data[this.index].images.thumbnail.width/this.data[this.index].images.standard_resolution.width);
 		this.image.src = this.data[this.index].images.standard_resolution.url;
 	}.bind(this));
 
@@ -84,11 +84,14 @@ var appendElements = function() {
 	this.overlays.appendChild(this.right);
 	this.background.appendChild(this.overlays);
 	this.container.appendChild(this.background);
-	this.container.appendChild(this.button);
 	this.container.appendChild(this.image);
+	this.element.appendChild(this.container);
+	this.element.appendChild(this.button);
 };
 
 var sizeElements = function() {
+	this.element.style.height = this.options.detailSize;
+	this.element.style.width = this.options.detailSize;
 	this.container.style.height = this.options.detailSize;
 	this.container.style.width = this.options.detailSize;
 	this.overlays.style.height = this.options.detailSize;
@@ -103,6 +106,7 @@ var sizeElements = function() {
 
 var createElements = function() {
 	this.script = document.createElement('script');
+	this.element = document.createElement('div');
 	this.container = document.createElement('div');
 	this.overlays = document.createElement('div');
 	this.left = document.createElement('div');
@@ -113,6 +117,7 @@ var createElements = function() {
 };
 
 var addIDs = function() {
+	this.element.id = 'lightbox';
 	this.container.id = 'container';
 	this.overlays.id = 'overlays';
 	this.left.id = 'left';
@@ -125,8 +130,8 @@ var addIDs = function() {
 // TODO: account for window margin
 var setState = function(state, container, scale) {
 	state.transform = 'translate(-50%, -50%) scale(' + scale + ')';
-	state.top = (container.getBoundingClientRect().height/2) + container.getBoundingClientRect().top - document.body.getBoundingClientRect().top;
-	state.left = (container.getBoundingClientRect().width/2) + container.getBoundingClientRect().left - document.body.getBoundingClientRect().left;	
+	state.top = (container.getBoundingClientRect().height/2) + container.getBoundingClientRect().top - this.element.getBoundingClientRect().top - document.body.getBoundingClientRect().top;
+	state.left = (container.getBoundingClientRect().width/2) + container.getBoundingClientRect().left - this.element.getBoundingClientRect().left - document.body.getBoundingClientRect().left;	
 };
 
 var setStyles = function(element, styles) {
@@ -146,12 +151,12 @@ var handleThumbnailClick = function(thumbnail, data, position) {
 		this.image.style.opacity = 1; // make visible
 
 		// set initial size and position
-		setState(this.states.initial, thumbnail, data.images.thumbnail.width/data.images.standard_resolution.width);
+		setState.call(this, this.states.initial, thumbnail, this.options.thumbnailSize/this.options.detailSize);
 		this.image.style.transition = 'none';
 		setStyles(this.image, this.states.initial);
 	
 		// set final size and position
-		setState(this.states.final, this.container, 1);
+		setState.call(this, this.states.final, this.element, 1);
 		this.image.style.transition = 'all 0.5s ease';
 		setStyles(this.image, this.states.final);
 
@@ -162,13 +167,12 @@ var handleThumbnailClick = function(thumbnail, data, position) {
 var addThumbnails = function(thumbnails, number) {
 	var thumbnail;
 	var size = this.options.detailSize / this.options.columns;
-	console.log(size);
 	return Array.apply(null, Array(number)).reduce(function(thumbnails) {
 		thumbnail = document.createElement('img');
 		thumbnail.classList.add('thumbnail');
 		thumbnail.style.height = size;
 		thumbnail.style.width = size;
-		this.container.insertBefore(thumbnail, this.button);
+		this.container.appendChild(thumbnail);
 		this.thumbnails.push(thumbnail);
 		return this.thumbnails;
 	}.bind(this), this.thumbnails);
