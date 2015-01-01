@@ -67,7 +67,6 @@ var createThumbnails = function() {
 };
 
 var initialize = function(json) {
-	console.log(json.data.length);
 	data = json.data;
 	pagination = json.pagination;
 	setThumbnails();
@@ -88,44 +87,28 @@ var createOverlay = function(position) {
 };
 
 var handleOverlayClick = function(event) {
-	var url;
-	console.log(current);
-	if (event.target.id === 'right') {
-		// url = pagination.next_url;
-		// url = getURL('paginateForward', 'max_tag_id', pagination.next_max_tag_id);
-		url = getURL('paginateForward', 'min_tag_id', pagination.min_tag_id);
-		urls.push(url);
-		getData(url);
-	} else if (event.target.id === 'left')  {
-		url = urls.pop(); // get current
-		if (url === current) url = urls.pop(); // if we're already on that page, go to previous
-		if (url === undefined) url = getURL('paginateBackward', 'min_tag_id', pagination.min_tag_id);
-		getData(url);
-	}
-	current = url;
-	console.log(urls.length);
-
-	// if (index >= data.length) {
-	// 	console.log('index greater than data.length-1');
-	// 	// update data
-	// 	getData('max_tag_id');
-	// 	// update thumbnails
-	// 	// update index
-	// 	// index = index % data.length;
-	// 	// update image
-	// } else if (index < 0) {
-	// 	console.log('index less than 0');
-	// 	getData('min_tag_id');
-
-	// 	// index = (data.length + index);
-	// 	// remove backward pointer
-	// 	// pop data off of the stack of data
-	// 	// update thumbnails
-	// 	// update image
-	// } else {
-	// 	image.dispatchEvent(updated);
+	// var url;
+	// console.log(current);
+	// if (event.target.id === 'right') {
+	// 	// url = pagination.next_url;
+	// 	// url = getURL('paginateForward', 'max_tag_id', pagination.next_max_tag_id);
+	// 	url = getURL('paginateForward', 'min_tag_id', pagination.min_tag_id);
+	// 	urls.push(url);
+	// 	getData(url);
+	// } else if (event.target.id === 'left')  {
+	// 	url = urls.pop(); // get current
+	// 	if (url === current) url = urls.pop(); // if we're already on that page, go to previous
+	// 	if (url === undefined) url = getURL('paginateBackward', 'min_tag_id', pagination.min_tag_id);
+	// 	getData(url);
 	// }
-	// console.log(index);
+	// current = url;
+	// console.log(urls.length);
+
+	if (event.target.id === 'right') index++;
+	else if (event.target.id === 'left') index--;
+
+	index = (data.length + index) % data.length;
+	image.dispatchEvent(updated);
 };
 
 var paginateForward = function(json) {
