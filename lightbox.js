@@ -4,7 +4,7 @@ var root = 'https://api.instagram.com/v1/tags/nyc/media/recent?client_id=' + cli
 var data = [];
 var urls = [];
 var thumbnails;
-var script, container, overlays, image;
+var script, container, overlays, background, image;
 var index = 0;
 var updated = new Event('updated');
 var states = {
@@ -30,7 +30,7 @@ var setStyles = function(element, styles) {
 
 var handleThumbnailClick = function(data, i) {
 	index = i;
-	overlays.classList.add('active');
+	background.classList.add('active');
 	// initialize image
 	image.src = '';
 	image.style.top = '';
@@ -160,17 +160,20 @@ document.addEventListener('DOMContentLoaded', function() {
 	document.body.appendChild(script);
 	container = document.createElement('div');
 	overlays = document.createElement('div');
+	background = document.createElement('div');
 	image = document.createElement('img');
 	overlays.id = 'overlays';
 	document.body.appendChild(container);
-	container.appendChild(overlays);
+	background.appendChild(overlays);
+	container.appendChild(background);
 	container.appendChild(image);
 	container.id = 'container';
 	image.id = 'image';
+	background.id = 'background';
 
 
-	var button = document.createElement('button');
-	container.appendChild(button);
+	// var button = document.createElement('button');
+	// container.appendChild(button);
 
 	createThumbnails();
 	getData(getURL('initialize'));
@@ -185,11 +188,15 @@ document.addEventListener('DOMContentLoaded', function() {
 		image.src = data[index].images.standard_resolution.url;
 	});
 
+	overlays.addEventListener('click', function(event) {
+		event.stopPropagation();
+	});
+
 	// TODO: Use an overlay
-	button.style.position = 'absolute';
-	button.addEventListener('click', function(event) {
+	// button.style.position = 'absolute';
+	background.addEventListener('click', function(event) {
 		image.style.transition = 'all 0.5s ease'; // turn transition back on
-		overlays.classList.remove('active');
+		background.classList.remove('active');
 		
 		setStyles(image, states.initial);
 
