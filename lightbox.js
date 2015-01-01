@@ -27,8 +27,8 @@ var setStyles = function(element, styles) {
 	});
 };
 
-var handleThumbnailClick = function(data, i) {
-	index = i;
+var handleThumbnailClick = function(data, position) {
+	index = position;
 	background.classList.add('active');
 	// initialize image
 	image.src = '';
@@ -85,23 +85,6 @@ var createOverlay = function(position) {
 };
 
 var handleOverlayClick = function(event) {
-	// var url;
-	// console.log(current);
-	// if (event.target.id === 'right') {
-	// 	// url = pagination.next_url;
-	// 	// url = getURL('paginateForward', 'max_tag_id', pagination.next_max_tag_id);
-	// 	url = getURL('paginateForward', 'min_tag_id', pagination.min_tag_id);
-	// 	urls.push(url);
-	// 	getData(url);
-	// } else if (event.target.id === 'left')  {
-	// 	url = urls.pop(); // get current
-	// 	if (url === current) url = urls.pop(); // if we're already on that page, go to previous
-	// 	if (url === undefined) url = getURL('paginateBackward', 'min_tag_id', pagination.min_tag_id);
-	// 	getData(url);
-	// }
-	// current = url;
-	// console.log(urls.length);
-
 	if (event.target.id === 'right') index++;
 	else if (event.target.id === 'left') index--;
 
@@ -193,19 +176,17 @@ document.addEventListener('DOMContentLoaded', function() {
 		event.stopPropagation();
 	});
 
-	// TODO: Use an overlay
-	// button.style.position = 'absolute';
 	background.addEventListener('click', function(event) {
 		image.style.transition = 'all 0.5s ease'; // turn transition back on
 		background.classList.remove('active');
 		
 		setStyles(image, states.initial);
 
-		// // TODO: decide if necessary;
-		// image.addEventListener('transitionend', function removeImage() {
-		// 	console.log('transitionend');
-		// 	image.src = '';
-		// 	image.removeEventListener('transitionend', removeImage);
-		// });
+		// TODO: decide if necessary;
+		image.addEventListener('transitionend', function removeImage() {
+			console.log('transitionend');
+			image.src = '';
+			image.removeEventListener('transitionend', removeImage);
+		});
 	});
 });
