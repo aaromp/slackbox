@@ -1,20 +1,98 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
 var root = 'https://api.instagram.com/v1/tags/nyc/media/recent?client_id=' + client_id;
 
-var script, container, overlays, background, image, button;
+var Lightbox = function() {
+	this.data = [];
+	this.pagination = {};
+	this.thumbnails = [];
+	this.index = 0;
+	this.states = {
+		initial: {},
+		final: {}
+	};
+	this.updated = new Event('updated');
 
-// initialize global variables;
-var pagination;
-var data = [];
-var thumbnails = [];
-var index = 0;
-var updated = new Event('updated');
-var states = {
-	initial: {},
-	final: {}
+	createElements.call(this);	
+	addIDs.call(this);
+	appendElements.call(this);	
+
+	createOverlay.call(this, 'left').addEventListener('click', handleOverlayClick.bind(this));
+	createOverlay.call(this, 'right').addEventListener('click', handleOverlayClick.bind(this));
+
+	addEventListeners.call(this);
+
+	// initialize with data
+	window.handleData = handleData.bind(this); // must bind global callback to correct context
+	getData.call(this, getURL(24, 'handleData'));
+
+	return this.container;
 };
 
+Lightbox.options = {
+	rows: 5,
+	columns: 5,
+	size: 750
+};
 
+var addEventListeners = function() {
+	this.image.addEventListener('updated', function() {
+		this.image.style.transition = 'none'; // turn off transition
+		setState(this.states.initial, this.thumbnails[this.index], this.data[this.index].images.thumbnail.width/this.data[this.index].images.standard_resolution.width);
+		this.image.src = this.data[this.index].images.standard_resolution.url;
+	}.bind(this));
+
+	this.button.addEventListener('click', function(event) {
+		var url = getURL(25, 'handleData', 'max_tag_id', this.pagination.next_max_tag_id);
+		getData.call(this, url);
+	}.bind(this));
+
+	this.overlays.addEventListener('click', function(event) {
+		event.stopPropagation();
+	});
+
+	this.background.addEventListener('click', function(event) {
+		this.image.style.transition = 'all 0.5s ease'; // turn transition back on
+		this.background.classList.remove('active');
+		
+		setStyles(this.image, this.states.initial);
+
+		// remove image after transitioned to grid mode
+		removeImage = removeImage.bind(this); // must bind remove image to correct context
+		this.image.addEventListener('transitionend', removeImage);
+	}.bind(this));
+};
+
+var removeImage = function() {
+	this.image.src = '';
+	this.image.removeEventListener('transitionend', removeImage);
+};
+
+var appendElements = function() {
+	document.body.appendChild(this.script);
+	this.background.appendChild(this.overlays);
+	this.container.appendChild(this.background);
+	this.container.appendChild(this.button);
+	this.container.appendChild(this.image);
+};
+
+var createElements = function() {
+	this.script = document.createElement('script');
+	this.container = document.createElement('div');
+	this.overlays = document.createElement('div');
+	this.background = document.createElement('div');
+	this.image = document.createElement('img');
+	this.button = document.createElement('div');
+};
+
+var addIDs = function() {
+	this.container.id = 'container';
+	this.overlays.id = 'overlays';
+	this.background.id = 'background';
+	this.image.id = 'image';
+	this.button.id = 'button';
+};
+
+// TODO: account for window margin
 var setState = function(state, container, scale) {
 	state.transform = 'translate(-50%, -50%) scale(' + scale + ')';
 	state.top = (container.getBoundingClientRect().height/2) + container.getBoundingClientRect().top - document.body.getBoundingClientRect().top;
@@ -27,30 +105,27 @@ var setStyles = function(element, styles) {
 	});
 };
 
-var handleThumbnailClick = function(data, position) {
-	index = position;
-	background.classList.add('active');
+var handleThumbnailClick = function(thumbnail, data, position) {
+	this.index = position;
+	this.background.classList.add('active');
 	// initialize image
-	image.src = '';
-	image.style.top = '';
-	image.style.left = '';
-	image.src = data.images.standard_resolution.url;
-	image.style.opacity = 0;
+	this.image.style.opacity = 0;
+	this.image.src = data.images.standard_resolution.url;
 
-	image.onload = function() {
-		image.style.opacity = 1; // make visible
+	this.image.onload = function() {
+		this.image.style.opacity = 1; // make visible
 
 		// set initial size and position
-		setState(states.initial, this, data.images.thumbnail.width/data.images.standard_resolution.width);
-		image.style.transition = 'none';
-		setStyles(image, states.initial);
+		setState(this.states.initial, thumbnail, data.images.thumbnail.width/data.images.standard_resolution.width);
+		this.image.style.transition = 'none';
+		setStyles(this.image, this.states.initial);
 	
 		// set final size and position
-		setState(states.final, container, 1);
-		image.style.transition = 'all 0.5s ease';
-		setStyles(image, states.final);
+		setState(this.states.final, this.container, 1);
+		this.image.style.transition = 'all 0.5s ease';
+		setStyles(this.image, this.states.final);
 
-		image.onload = null; // remove onload function
+		this.image.onload = null; // remove onload function
 	}.bind(this);
 };
 
@@ -59,57 +134,41 @@ var addThumbnails = function(thumbnails, number) {
 	return Array.apply(null, Array(number)).reduce(function(thumbnails) {
 		thumbnail = document.createElement('img');
 		thumbnail.classList.add('thumbnail');
-		container.insertBefore(thumbnail, button);
-		thumbnails.push(thumbnail);
-		return thumbnails;
-	}, thumbnails);
+		this.container.insertBefore(thumbnail, this.button);
+		this.thumbnails.push(thumbnail);
+		return this.thumbnails;
+	}.bind(this), this.thumbnails);
 };
 
 var setThumbnails = function(thumbnails, data, offset) {
-	console.log(thumbnails.length, data.length);
 	var position;
 	data.forEach(function(data, index) {
 		position = offset + index;
 		thumbnails[position].src = data.images.thumbnail.url;
-		thumbnails[position].addEventListener('click', handleThumbnailClick.bind(thumbnails[position], data, position));
-	});
+		thumbnails[position].addEventListener('click', handleThumbnailClick.bind(this, thumbnails[position], data, position));
+	}.bind(this));
 };
 
 var createOverlay = function(position) {
 	var overlay = document.createElement('div');
 	overlay.id = position;
-	overlays.appendChild(overlay);
+	this.overlays.appendChild(overlay);
 	return overlay;
 };
 
 var handleOverlayClick = function(event) {
-	if (event.target.id === 'right') index++;
-	else if (event.target.id === 'left') index--;
+	if (event.target.id === 'right') this.index++;
+	else if (event.target.id === 'left') this.index--;
 
-	index = (data.length + index) % data.length;
-	console.log(data.length, index);
-	image.dispatchEvent(updated);
-};
-
-var paginateForward = function(json) {
-	console.log('forward!');
-	pagination = json.pagination;
-	data = json.data.concat(Array.apply(null, Array(24))).slice(0, 24);
-	setThumbnails(data);
-};
-
-var paginateBackward = function(json) {
-	console.log('backward!');
-	pagination = json.pagination;
-	data = json.data.concat(data).slice(0, 24);
-	setThumbnails(data);
+	this.index = (this.data.length + this.index) % this.data.length;
+	this.image.dispatchEvent(this.updated);
 };
 
 var getData = function(url) {
-	document.body.removeChild(script);
-	script = document.createElement('script');
-	script.src = url;
-	document.body.appendChild(script);
+	document.body.removeChild(this.script);
+	this.script = document.createElement('script');
+	this.script.src = url;
+	document.body.appendChild(this.script);
 };
 
 var getURL = function(count, callback, param, value) {
@@ -118,80 +177,15 @@ var getURL = function(count, callback, param, value) {
 	return url;
 };
 
-var initialize = function(json) {
-	var offset = thumbnails.length;
-	addThumbnails(thumbnails, 24);
-	data = json.data;
-	pagination = json.pagination;
-	setThumbnails(thumbnails, data, offset);
-};
-
 var handleData = function(json) {
-	var offset = thumbnails.length;
-	addThumbnails(thumbnails, json.data.length);
-	setThumbnails(thumbnails, json.data, offset);
-	data = data.concat(json.data);
-	pagination = json.pagination;
+	var offset = this.thumbnails.length;
+	addThumbnails.call(this, this.thumbnails, json.data.length);
+	setThumbnails.call(this, this.thumbnails, json.data, offset);
+	this.data = this.data.concat(json.data);
+	this.pagination = json.pagination;
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-	// create elements
-	script = document.createElement('script');
-	container = document.createElement('div');
-	overlays = document.createElement('div');
-	background = document.createElement('div');
-	image = document.createElement('img');
-	button = document.createElement('div');
-
-	// add ids
-	container.id = 'container';
-	overlays.id = 'overlays';
-	background.id = 'background';
-	image.id = 'image';
-	button.id = 'button';
-	
-	// append elements to DOM
-	document.body.appendChild(container);
-	document.body.appendChild(script);
-	background.appendChild(overlays);
-	container.appendChild(background);
-	container.appendChild(button);
-	container.appendChild(image);
-
-	createOverlay('left').addEventListener('click', handleOverlayClick);
-	createOverlay('right').addEventListener('click', handleOverlayClick);
-
-	// add event listeners
-	image.addEventListener('updated', function() {
-		image.style.transition = 'none'; // turn off transition
-		setState(states.initial, thumbnails[index], data[index].images.thumbnail.width/data[index].images.standard_resolution.width);
-		image.src = data[index].images.standard_resolution.url;
-	});
-
-	button.addEventListener('click', function(event) {
-		console.log('butotn was clicked');
-		var url = getURL(25, 'handleData', 'max_tag_id', pagination.next_max_tag_id);
-		getData(url);
-	});
-
-	overlays.addEventListener('click', function(event) {
-		event.stopPropagation();
-	});
-
-	background.addEventListener('click', function(event) {
-		image.style.transition = 'all 0.5s ease'; // turn transition back on
-		background.classList.remove('active');
-		
-		setStyles(image, states.initial);
-
-		// remove image after transitioned to grid mode
-		image.addEventListener('transitionend', function removeImage() {
-			console.log('transitionend');
-			image.src = '';
-			image.removeEventListener('transitionend', removeImage);
-		});
-	});
-
-	// add data
-	getData(getURL(24, 'handleData'));
+	var lightbox = new Lightbox();
+	document.body.appendChild(lightbox);
 });
