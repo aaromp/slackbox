@@ -1,9 +1,12 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
 var root = 'https://api.instagram.com/v1/tags/nyc/media/recent?client_id=' + client_id;
 
+var script, container, overlays, background, image, button;
+
+// initialize global variables;
+var pagination;
 var data = [];
 var thumbnails = [];
-var script, container, overlays, background, image, button;
 var index = 0;
 var updated = new Event('updated');
 var states = {
@@ -11,9 +14,6 @@ var states = {
 	final: {}
 };
 
-var current;
-
-var pagination;
 
 var setState = function(state, container, scale) {
 	state.transform = 'translate(-50%, -50%) scale(' + scale + ')';
@@ -64,8 +64,6 @@ var addThumbnails = function(thumbnails, number) {
 		return thumbnails;
 	}, thumbnails);
 };
-
-
 
 var setThumbnails = function(thumbnails, data, offset) {
 	console.log(thumbnails.length, data.length);
@@ -137,29 +135,33 @@ var handleData = function(json) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
+	// create elements
 	script = document.createElement('script');
-	document.body.appendChild(script);
 	container = document.createElement('div');
 	overlays = document.createElement('div');
 	background = document.createElement('div');
 	image = document.createElement('img');
 	button = document.createElement('div');
-	button.id = 'button';
+
+	// add ids
+	container.id = 'container';
 	overlays.id = 'overlays';
+	background.id = 'background';
+	image.id = 'image';
+	button.id = 'button';
+	
+	// append elements to DOM
 	document.body.appendChild(container);
+	document.body.appendChild(script);
 	background.appendChild(overlays);
 	container.appendChild(background);
 	container.appendChild(button);
 	container.appendChild(image);
-	container.id = 'container';
-	image.id = 'image';
-	background.id = 'background';
-
-	getData(getURL(24, 'handleData'));
 
 	createOverlay('left').addEventListener('click', handleOverlayClick);
 	createOverlay('right').addEventListener('click', handleOverlayClick);
 
+	// add event listeners
 	image.addEventListener('updated', function() {
 		image.style.transition = 'none'; // turn off transition
 		setState(states.initial, thumbnails[index], data[index].images.thumbnail.width/data[index].images.standard_resolution.width);
@@ -182,11 +184,14 @@ document.addEventListener('DOMContentLoaded', function() {
 		
 		setStyles(image, states.initial);
 
-		// TODO: decide if necessary;
+		// remove image after transitioned to grid mode
 		image.addEventListener('transitionend', function removeImage() {
 			console.log('transitionend');
 			image.src = '';
 			image.removeEventListener('transitionend', removeImage);
 		});
 	});
+
+	// add data
+	getData(getURL(24, 'handleData'));
 });

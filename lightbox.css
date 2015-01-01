@@ -6,7 +6,6 @@ body {
 #container {
 	height: 750px;
 	width: 750px;
-	margin: auto;
 	overflow-y: auto;
 	background-color: white;
 }
