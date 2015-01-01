@@ -1,10 +1,9 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
 var root = 'https://api.instagram.com/v1/tags/nyc/media/recent?client_id=' + client_id;
 
-var data = [];
-var urls = [];
+var data;
 var thumbnails;
-var script, container, overlays, background, image;
+var script, container, overlays, background, image, button;
 var index = 0;
 var updated = new Event('updated');
 var states = {
@@ -55,13 +54,14 @@ var handleThumbnailClick = function(data, i) {
 	}.bind(this);
 };
 
-var createThumbnails = function() {
+var createThumbnails = function(number) {
 	var thumbnail;
-	thumbnails = Array.apply(null, Array(25)).map(function() {
+	return Array.apply(null, Array(number)).map(function() {
 		thumbnail = document.createElement('img');
 		thumbnail.index = index;
 		thumbnail.classList.add('thumbnail');
-		container.appendChild(thumbnail);
+		// container.appendChild(thumbnail);
+		container.insertBefore(thumbnail, button);
 		return thumbnail;
 	});
 };
@@ -114,14 +114,14 @@ var handleOverlayClick = function(event) {
 var paginateForward = function(json) {
 	console.log('forward!');
 	pagination = json.pagination;
-	data = json.data.concat(Array.apply(null, Array(25))).slice(0, 25);
+	data = json.data.concat(Array.apply(null, Array(24))).slice(0, 24);
 	setThumbnails();
 };
 
 var paginateBackward = function(json) {
 	console.log('backward!');
 	pagination = json.pagination;
-	data = json.data.concat(data).slice(0, 25);
+	data = json.data.concat(data).slice(0, 24);
 	setThumbnails();
 };
 
@@ -133,7 +133,7 @@ var getData = function(url) {
 };
 
 var getURL = function(callback, param, value) {
-	var url = root + '&count=25' + '&callback=' + callback;
+	var url = root + '&count=24' + '&callback=' + callback;
 	if (param) url += ['&', param, '=', value].join('');
 	return url;
 };
@@ -145,27 +145,25 @@ document.addEventListener('DOMContentLoaded', function() {
 	overlays = document.createElement('div');
 	background = document.createElement('div');
 	image = document.createElement('img');
+	button = document.createElement('div');
+	button.id = 'button';
 	overlays.id = 'overlays';
 	document.body.appendChild(container);
 	background.appendChild(overlays);
 	container.appendChild(background);
+	container.appendChild(button);
 	container.appendChild(image);
 	container.id = 'container';
 	image.id = 'image';
 	background.id = 'background';
 
-
-	// var button = document.createElement('button');
-	// container.appendChild(button);
-
-	createThumbnails();
+	thumbnails = createThumbnails(24);
 	getData(getURL('initialize'));
 
 	createOverlay('left').addEventListener('click', handleOverlayClick);
 	createOverlay('right').addEventListener('click', handleOverlayClick);
 
 	image.addEventListener('updated', function() {
-		// console.log('image heard a change!', data, index, data[index]);
 		image.style.transition = 'none'; // turn off transition
 		setState(states.initial, thumbnails[index], data[index].images.thumbnail.width/data[index].images.standard_resolution.width);
 		image.src = data[index].images.standard_resolution.url;

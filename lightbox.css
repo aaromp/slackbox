@@ -7,12 +7,13 @@ body {
 	height: 750px;
 	width: 750;
 	margin: auto;
-	padding: 10px;
+	/*padding: 10px;*/
 	background-color: white;
 }
 
 #background.active {
 	pointer-events: auto;
+	opacity: 0.9;
 }
 
 #background {
@@ -20,6 +21,9 @@ body {
 	height: inherit;
 	width: inherit;
 	pointer-events: none;
+	opacity: 0;
+	background-color: black;
+	transition: opacity 0.5s ease;
 }
 
 #overlays {
@@ -38,6 +42,14 @@ body {
 	opacity: 0;
 	position: absolute;
 	pointer-events: none;
+}
+
+#button {
+	display: inline-block;
+	position: absolute;
+	height: 150px;
+	width: 150px;
+	background-color: pink;
 }
 
 .thumbnail {
