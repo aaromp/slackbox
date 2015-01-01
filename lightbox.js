@@ -35,8 +35,8 @@ var addEventListeners = function() {
 		event.stopPropagation();
 	});
 
-	this.left.addEventListener('click', handleOverlayClick.bind(this));
-	this.right.addEventListener('click', handleOverlayClick.bind(this));
+	this.left.addEventListener('click', handleOverlayClick.bind(this, -1));
+	this.right.addEventListener('click', handleOverlayClick.bind(this, 1));
 
 	this.background.addEventListener('click', function(event) {
 		this.image.style.transition = 'all 0.5s ease'; // turn transition back on
@@ -161,11 +161,8 @@ var createOverlay = function(position) {
 	return overlay;
 };
 
-var handleOverlayClick = function(event) {
-	if (event.target.id === 'right') this.index++;
-	else if (event.target.id === 'left') this.index--;
-
-	this.index = (this.data.length + this.index) % this.data.length;
+var handleOverlayClick = function(change, event) {
+	this.index = (this.data.length + this.index + change) % this.data.length;
 	this.image.dispatchEvent(this.updated);
 };
 
