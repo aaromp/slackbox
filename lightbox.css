@@ -71,11 +71,15 @@ body {
 	height: 150px;
 	width: inherit;
 	background-color: rgb(39, 39, 39);
-	transition: all 0.25s ease;
+	transition: all 0.5s ease;
 }
 
 #bar:before {
 	content: "close";
+}
+
+#bar:hover {
+	cursor: pointer;
 }
 
 #button {
@@ -94,7 +98,7 @@ body {
 	height: 150px;
 	width: inherit;
 	background-color: rgb(39, 39, 39);
-	transition: all 0.25s ease;
+	transition: all 0.5s ease;
 }
 
 #button:before {

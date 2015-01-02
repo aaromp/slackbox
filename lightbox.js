@@ -10,8 +10,9 @@ var Lightbox = function(options) {
 		initial: {},
 		final: {}
 	};
-	this.updated = new Event('updated');
+	
 	this.expandable = true;
+	this.updated = new Event('updated');
 
 	// set options
 	this.options = Lightbox.DEFAULT_OPTIONS;
@@ -40,13 +41,11 @@ Lightbox.DEFAULT_OPTIONS = {
 Lightbox.prototype.showFooter = function() {
 	this.button.style.height = this.options.detailSize/this.options.columns/2;
 	this.button.style.lineHeight = this.options.detailSize/this.options.columns/2 + 'px';
-	this.expandable = !this.expandable;
 };
 
 Lightbox.prototype.hideFooter = function() {
 	this.button.style.height = 0;
 	this.button.style.lineHeight = 0 + 'px';
-	this.expandable = !this.expandable;
 };
 
 Lightbox.prototype.showHeader = function() {
@@ -85,6 +84,7 @@ var addEventListeners = function() {
 	this.bar.addEventListener('click', function(event) {
 		this.hideHeader();
 		if (this.expandable) this.showFooter();
+		// else this.hideFooter();
 		this.image.style.transition = 'all 0.5s ease'; // turn transition back on
 		this.background.classList.remove('active');
 		
@@ -107,8 +107,10 @@ var addEventListeners = function() {
 		var thumbnailSize = this.options.detailSize / this.options.columns;
 		if (this.container.scrollTop >= (rows * thumbnailSize) - this.options.detailSize) {
 			this.showFooter();
+			this.expandable = true;
 		} else {
 			this.hideFooter();
+			this.expandable = false;
 		}
 	}.bind(this);
 };
@@ -189,11 +191,14 @@ var setStyles = function(element, styles) {
 var handleThumbnailClick = function(thumbnail, data, position) {
 	this.index = position;
 	this.background.classList.add('active');
+
 	// initialize image
 	this.image.style.opacity = 0;
 	this.image.src = data.images.standard_resolution.url;
-	this.showHeader();
+
 	this.hideFooter();
+	this.showHeader();
+	console.log('expandable?', this.expandable);
 
 	this.image.onload = function() {
 		this.image.style.opacity = 1; // make visible
