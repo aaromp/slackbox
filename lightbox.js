@@ -192,18 +192,16 @@ var handleThumbnailClick = function(thumbnail, data, position) {
 	// initialize image
 	this.image.style.opacity = 0;
 	this.image.src = data.images.standard_resolution.url;
+	setState.call(this, this.states.initial, thumbnail, 1/this.options.columns);
+	this.image.style.transition = 'none';
+	setStyles(this.image, this.states.initial);
 
 	this.hideFooter();
 	this.showHeader();
 
 	this.image.onload = function() {
 		this.image.style.opacity = 1; // make visible
-
-		// set initial size and position
-		setState.call(this, this.states.initial, thumbnail, 1/this.options.columns);
-		this.image.style.transition = 'none';
-		setStyles(this.image, this.states.initial);
-	
+		
 		// set final size and position
 		setState.call(this, this.states.final, this.element, 1);
 		this.image.style.transition = 'all 0.5s ease';
