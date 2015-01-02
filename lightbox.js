@@ -1,5 +1,5 @@
 var client_id = '38615c1e89344d13b07e194a36915fc8';
-var root = 'https://api.instagram.com/v1/tags/iceland/media/recent?client_id=' + client_id;
+var root = 'https://api.instagram.com/v1/tags/smilingfood/media/recent?client_id=' + client_id;
 
 var Lightbox = function(options) {
 	// initialize instance variables
@@ -28,8 +28,6 @@ var Lightbox = function(options) {
 	// initialize with data
 	window.handleData = handleData.bind(this); // must bind global callback to correct context
 	getData.call(this, getURL(this.options.columns * this.options.columns, 'handleData'));
-
-	return this.element;
 };
 
 Lightbox.DEFAULT_OPTIONS = {
@@ -59,6 +57,10 @@ Lightbox.prototype.hideHeader = function() {
 	this.bar.style.lineHeight = 0 + 'px';
 };
 
+Lightbox.prototype.setTitle = function(title) {
+	this.title.innerHTML = title;
+};
+
 var setOptions = function(options) {
 	Object.keys(options).forEach(function(option) {
 		this[option] = options[option];
@@ -79,6 +81,7 @@ var addEventListeners = function() {
 	this.right.addEventListener('click', handleOverlayClick.bind(this, 1));
 
 	this.image.addEventListener('updated', function() {
+		if (this.data[this.index].caption.text) this.setTitle(this.data[this.index].caption.text);
 		this.image.style.transition = 'none'; // turn off transition
 		setState.call(this, this.states.initial, this.thumbnails[this.index], this.data[this.index].images.thumbnail.width/this.data[this.index].images.standard_resolution.width);
 		this.image.src = this.data[this.index].images.standard_resolution.url;
@@ -125,6 +128,7 @@ var appendElements = function() {
 	this.background.appendChild(this.overlays);
 	this.container.appendChild(this.background);
 	this.container.appendChild(this.image);
+	this.bar.appendChild(this.title);
 	this.element.appendChild(this.bar);
 	this.element.appendChild(this.container);
 	this.element.appendChild(this.button);
@@ -159,6 +163,7 @@ var createElements = function() {
 	this.image = document.createElement('img');
 	this.bar = document.createElement('div');
 	this.button = document.createElement('div');
+	this.title = document.createElement('h1');
 };
 
 var addIDs = function() {
@@ -171,6 +176,7 @@ var addIDs = function() {
 	this.image.id = 'image';
 	this.bar.id = 'bar';
 	this.button.id = 'button';
+	this.title.id = 'title';
 };
 
 var setState = function(state, container, scale) {
@@ -195,13 +201,14 @@ var handleThumbnailClick = function(thumbnail, data, position) {
 	setState.call(this, this.states.initial, thumbnail, 1/this.options.columns);
 	this.image.style.transition = 'none';
 	setStyles(this.image, this.states.initial);
+	this.image.dispatchEvent(this.updated);
 
 	this.hideFooter();
 	this.showHeader();
 
 	this.image.onload = function() {
 		this.image.style.opacity = 1; // make visible
-		
+
 		// set final size and position
 		setState.call(this, this.states.final, this.element, 1);
 		this.image.style.transition = 'all 0.5s ease';
@@ -269,5 +276,5 @@ var handleData = function(json) {
 
 document.addEventListener('DOMContentLoaded', function() {
 	var lightbox = new Lightbox();
-	document.body.appendChild(lightbox);
+	document.body.appendChild(lightbox.element);
 });

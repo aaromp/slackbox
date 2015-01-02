@@ -3,7 +3,7 @@ body {
 	background-color: white;
 }
 
-#lightbox, #overlays {
+#lightbox, #overlays, #title {
 	/* center */
 	position: absolute;
 	margin: auto;
@@ -59,12 +59,12 @@ body {
 	position: absolute;
 }
 
-#bar:before {
-	content: "close";
-}
-
 #bar:hover {
 	cursor: pointer;
+}
+
+#title {
+	font-size: 1em;
 }
 
 #button:before {
