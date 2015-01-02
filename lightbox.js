@@ -2,6 +2,7 @@ var client_id = '38615c1e89344d13b07e194a36915fc8';
 var root = 'https://api.instagram.com/v1/tags/iceland/media/recent?client_id=' + client_id;
 
 var Lightbox = function(options) {
+	// initialize instance variables
 	this.data = [];
 	this.pagination = {};
 	this.thumbnails = [];
@@ -10,7 +11,7 @@ var Lightbox = function(options) {
 		initial: {},
 		final: {}
 	};
-	
+
 	this.expandable = true;
 	this.updated = new Event('updated');
 
@@ -28,19 +29,17 @@ var Lightbox = function(options) {
 	window.handleData = handleData.bind(this); // must bind global callback to correct context
 	getData.call(this, getURL(this.options.columns * this.options.columns, 'handleData'));
 
-	// this.button.innerHTML = 'hi';
-
 	return this.element;
 };
 
 Lightbox.DEFAULT_OPTIONS = {
-	columns: 4,
-	detailSize: 640
+	columns: 4, // max is 5 — instagram has a 25 image limit
+	size: 640
 };
 
 Lightbox.prototype.showFooter = function() {
-	this.button.style.height = this.options.detailSize/this.options.columns/2;
-	this.button.style.lineHeight = this.options.detailSize/this.options.columns/2 + 'px';
+	this.button.style.height = this.options.size/this.options.columns/2;
+	this.button.style.lineHeight = this.options.size/this.options.columns/2 + 'px';
 };
 
 Lightbox.prototype.hideFooter = function() {
@@ -49,9 +48,9 @@ Lightbox.prototype.hideFooter = function() {
 };
 
 Lightbox.prototype.showHeader = function() {
-	this.bar.style.top = -this.options.detailSize/this.options.columns/2;
-	this.bar.style.height = this.options.detailSize/this.options.columns/2;
-	this.bar.style.lineHeight = this.options.detailSize/this.options.columns/2 + 'px';
+	this.bar.style.top = -this.options.size/this.options.columns/2;
+	this.bar.style.height = this.options.size/this.options.columns/2;
+	this.bar.style.lineHeight = this.options.size/this.options.columns/2 + 'px';
 };
 
 Lightbox.prototype.hideHeader = function() {
@@ -61,10 +60,14 @@ Lightbox.prototype.hideHeader = function() {
 };
 
 var setOptions = function(options) {
-	console.log('setting options');
 	Object.keys(options).forEach(function(option) {
 		this[option] = options[option];
 	}.bind(this));
+};
+
+var removeImage = function() {
+	this.image.src = 'data:image/png;base64,R0lGODlhFAAUAIAAAP///wAAACH5BAEAAAAALAAAAAAUABQAAAIRhI+py+0Po5y02ouz3rz7rxUAOw=='; // replace with empty src to avoid silver border
+	this.image.removeEventListener('transitionend', removeImage);
 };
 
 var addEventListeners = function() {
@@ -84,7 +87,6 @@ var addEventListeners = function() {
 	this.bar.addEventListener('click', function(event) {
 		this.hideHeader();
 		if (this.expandable) this.showFooter();
-		// else this.hideFooter();
 		this.image.style.transition = 'all 0.5s ease'; // turn transition back on
 		this.background.classList.remove('active');
 		
@@ -97,6 +99,7 @@ var addEventListeners = function() {
 
 	this.button.addEventListener('click', function(event) {
 		this.hideFooter();
+		this.expandable = false;
 		var url = getURL(this.options.columns * this.options.columns, 'handleData', 'max_tag_id', this.pagination.next_max_tag_id);
 		getData.call(this, url);
 	}.bind(this));
@@ -104,8 +107,8 @@ var addEventListeners = function() {
 	// display more button when scrolled to the bottom
 	this.container.onscroll = function(event) {
 		var rows = this.thumbnails.length / this.options.columns;
-		var thumbnailSize = this.options.detailSize / this.options.columns;
-		if (this.container.scrollTop >= (rows * thumbnailSize) - this.options.detailSize) {
+		var thumbnailSize = this.options.size / this.options.columns;
+		if (this.container.scrollTop >= (rows * thumbnailSize) - this.options.size) {
 			this.showFooter();
 			this.expandable = true;
 		} else {
@@ -113,11 +116,6 @@ var addEventListeners = function() {
 			this.expandable = false;
 		}
 	}.bind(this);
-};
-
-var removeImage = function() {
-	this.image.src = '';
-	this.image.removeEventListener('transitionend', removeImage);
 };
 
 var appendElements = function() {
@@ -133,19 +131,19 @@ var appendElements = function() {
 };
 
 var sizeElements = function() {
-	this.element.style.height = this.options.detailSize;
-	this.element.style.width = this.options.detailSize;
-	this.container.style.height = this.options.detailSize;
-	this.container.style.width = this.options.detailSize;
-	this.container.style.top = this.options.detailSize/this.options.columns/2;
-	this.overlays.style.height = this.options.detailSize;
-	this.overlays.style.width = this.options.detailSize;
-	this.left.style.height = this.options.detailSize;
-	this.left.style.width = this.options.detailSize/2;
-	this.right.style.height = this.options.detailSize;
-	this.right.style.width = this.options.detailSize/2;
-	this.image.style.height = this.options.detailSize;
-	this.image.style.width = this.options.detailSize;
+	this.element.style.height = this.options.size;
+	this.element.style.width = this.options.size;
+	this.container.style.height = this.options.size;
+	this.container.style.width = this.options.size;
+	this.container.style.top = this.options.size/this.options.columns/2;
+	this.overlays.style.height = this.options.size;
+	this.overlays.style.width = this.options.size;
+	this.left.style.height = this.options.size;
+	this.left.style.width = this.options.size/2;
+	this.right.style.height = this.options.size;
+	this.right.style.width = this.options.size/2;
+	this.image.style.height = this.options.size;
+	this.image.style.width = this.options.size;
 	this.hideHeader();
 	this.showFooter();
 };
@@ -175,7 +173,6 @@ var addIDs = function() {
 	this.button.id = 'button';
 };
 
-// TODO: account for window margin
 var setState = function(state, container, scale) {
 	state.transform = 'translate(-50%, -50%) scale(' + scale + ')';
 	state.top = (container.getBoundingClientRect().height/2) + container.getBoundingClientRect().top - this.element.getBoundingClientRect().top - document.body.getBoundingClientRect().top;
@@ -198,7 +195,6 @@ var handleThumbnailClick = function(thumbnail, data, position) {
 
 	this.hideFooter();
 	this.showHeader();
-	console.log('expandable?', this.expandable);
 
 	this.image.onload = function() {
 		this.image.style.opacity = 1; // make visible
@@ -219,7 +215,7 @@ var handleThumbnailClick = function(thumbnail, data, position) {
 
 var addThumbnails = function(thumbnails, number) {
 	var thumbnail;
-	var size = this.options.detailSize / this.options.columns;
+	var size = this.options.size / this.options.columns;
 	return Array.apply(null, Array(number)).reduce(function(thumbnails) {
 		thumbnail = document.createElement('img');
 		thumbnail.classList.add('thumbnail');

@@ -3,7 +3,7 @@ body {
 	background-color: white;
 }
 
-#lightbox {
+#lightbox, #overlays {
 	/* center */
 	position: absolute;
 	margin: auto;
@@ -11,15 +11,9 @@ body {
 	left: 0;
 	bottom: 0;
 	right: 0;
-
-	/* instagram styles */
-/*	box-shadow: 0 1px 16px rgba(0, 0, 0, 0.1);
-	border: 1px solid silver;
-	border-radius: 3px;*/
 }
 
 #container {
-	/*position: relative;*/
 	overflow-y: auto;
 	background-color: black;
 }
@@ -39,28 +33,15 @@ body {
 	pointer-events: none;
 }
 
-#overlays {
-	/* center */
-	position: absolute;
-	margin: auto;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-}
-
 #image {
 	position: absolute;
 	pointer-events: none;
 }
 
-#bar {
-	position: absolute;
+#bar, #button {
 	font-family: proxima-nova, 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-weight: 600;
 	font-size: 2em;
-	/*letter-spacing: 1px;*/
-	/*text-transform: uppercase;*/
 	color: #FFFFFF;
 
 	text-align: center;
@@ -70,8 +51,12 @@ body {
 	display: inline-block;
 	height: 150px;
 	width: inherit;
-	background-color: rgb(39, 39, 39);
+	background-color: #242424;
 	transition: all 0.5s ease;
+}
+
+#bar {
+	position: absolute;
 }
 
 #bar:before {
@@ -82,27 +67,8 @@ body {
 	cursor: pointer;
 }
 
-#button {
-	font-family: proxima-nova, 'Helvetica Neue', Helvetica, Arial, sans-serif;
-	font-weight: 600;
-	font-size: 2em;
-	/*letter-spacing: 1px;*/
-	/*text-transform: uppercase;*/
-	color: #FFFFFF;
-
-	text-align: center;
-	line-height: 0px;
-	overflow: hidden;
-
-	display: inline-block;
-	height: 150px;
-	width: inherit;
-	background-color: rgb(39, 39, 39);
-	transition: all 0.5s ease;
-}
-
 #button:before {
-	content: "get more";
+	content: "more";
 }
 
 #button:hover {
@@ -128,5 +94,3 @@ body {
 #left, #right {
 	display: inline-block;
 };
-
-
